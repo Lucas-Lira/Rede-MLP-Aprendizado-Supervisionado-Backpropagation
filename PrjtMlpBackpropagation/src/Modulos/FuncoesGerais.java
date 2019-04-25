@@ -8,13 +8,12 @@ import javafx.stage.FileChooser;
 
 public class FuncoesGerais
 {
-    public static ArrayList<ArrayList<Double>> abrirArquivo(Registro reg, ArrayList<String> list_str, 
-            ArrayList<RegMaiorMenor> list_maior_menor, int[] camadas)
+    public static ArrayList<ArrayList<Double>> abrirArquivo(Registro reg /* Primeira Coluna da Tabela */, ArrayList<String> list_str /* Coluna das Classes */, int[] camadas)
     {
+        ArrayList<RegMaiorMenor> list_maior_menor = new ArrayList();
         ArrayList<ArrayList<Double>> list = new ArrayList();
         int camada_entrada = 0;
         int camada_saida = 0;
-        //list_str = new ArrayList();
         boolean sair = false;
         try
         {
@@ -163,7 +162,6 @@ public class FuncoesGerais
     public static List<Double> calculaSaidas(List<Double> list_nets, int tipo_funcao)
     {
         List<Double> list_saidas = new ArrayList();
-        
         switch(tipo_funcao)
         {
             case 1:
@@ -187,7 +185,6 @@ public class FuncoesGerais
     public static List multiplicaMatriz(List<List<Double>> list_pesos, List<Double> list_entradas)
     {
         if(!list_entradas.isEmpty() && !list_pesos.isEmpty())
-        {
             if(list_pesos.get(0).size() == list_entradas.size())
             {
                 List<Double> list_nets = new ArrayList();
@@ -204,7 +201,6 @@ public class FuncoesGerais
                 }
                 return list_nets;
             }
-        }
         return null;
     }
 }

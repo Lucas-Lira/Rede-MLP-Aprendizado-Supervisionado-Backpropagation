@@ -42,5 +42,4 @@ public class Neuronio
     public void setErro(double erro) {
         this.erro = erro;
     }
-    
 }

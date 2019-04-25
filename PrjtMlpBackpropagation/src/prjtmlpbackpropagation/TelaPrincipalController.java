@@ -1,5 +1,6 @@
 package prjtmlpbackpropagation;
 
+import Modulos.FuncoesGerais;
 import Modulos.Registro;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
@@ -147,16 +148,24 @@ public class TelaPrincipalController implements Initializable {
     private TableColumn<String, String> coltransicao45;
     @FXML
     private TableColumn<String, String> coltransicao46;
-    
-    private List<TableColumn> list_colunas;
-    private int tl;
     @FXML
     private JFXButton binicializar;
     
+    /* ArrayLists */
+    private List<TableColumn> list_colunas;
+    private List<String> list_str;
+    private ArrayList<ArrayList<Double>> list_dados;
+    
+    /* Variáveis e Estruturas (Classes) */
+    private int tl;
+    private Registro reg;
+    private int[] camadas;
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        list_str = new ArrayList();
+        camadas = new int[2];
         coltransicao1.setCellValueFactory(new PropertyValueFactory<>("a0"));
         coltransicao2.setCellValueFactory(new PropertyValueFactory<>("a1"));
         coltransicao3.setCellValueFactory(new PropertyValueFactory<>("a2"));
@@ -203,7 +212,6 @@ public class TelaPrincipalController implements Initializable {
         coltransicao44.setCellValueFactory(new PropertyValueFactory<>("a43"));
         coltransicao45.setCellValueFactory(new PropertyValueFactory<>("a44"));
         coltransicao46.setCellValueFactory(new PropertyValueFactory<>("a45"));
-        
         inicializarListColunas();
     }
     
@@ -274,6 +282,7 @@ public class TelaPrincipalController implements Initializable {
 
     @FXML
     private void evtLimparTabelasER(KeyEvent event) {
+        
     }
 
     @FXML
@@ -286,11 +295,13 @@ public class TelaPrincipalController implements Initializable {
 
     @FXML
     private void evtAbrirArquivo(ActionEvent event) {
+        list_dados = FuncoesGerais.abrirArquivo(reg, (ArrayList<String>) list_str, camadas);
+        System.out.println("Camadas Entrada: "+camadas[0]);
+        System.out.println("Camadas Saída: "+camadas[1]);
     }
 
     @FXML
     private void evtInicializar(ActionEvent event) {
         restartListColunas();
     }
-    
 }
