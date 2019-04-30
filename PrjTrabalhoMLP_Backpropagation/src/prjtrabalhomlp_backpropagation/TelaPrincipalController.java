@@ -385,12 +385,12 @@ public class TelaPrincipalController implements Initializable
         int size = list_dados.size();
         String[] vet;
         if(n_col >= 0 && n_col < (tf_tabela_dados - (colunas_adicionais + 1)))
-        for(int i = 0; i < size; i++)
-        {
-            vet = tabeladados.getItems().get(i).getTotal();
-            vet[n_col] = list.get(i).toString().toUpperCase();
-            tabeladados.getItems().get(i).setTotal(vet);
-        }
+            for(int i = 0; i < size; i++)
+            {
+                vet = tabeladados.getItems().get(i).getTotal();
+                vet[n_col] = list.get(i).toString().toUpperCase();
+                tabeladados.getItems().get(i).setTotal(vet);
+            }
     }
 
     @FXML
@@ -399,7 +399,52 @@ public class TelaPrincipalController implements Initializable
         list_classes = new ArrayList();
         int[] camadas = new int[2];
         list_dados = FuncoesGerais.abrirArquivo(list_classes, camadas, tabeladados, list_colunas);
-        
+        /*
+        ArrayList<ArrayList<ArrayList<Double>>> list_folds = FuncoesGerais.abrirArquivoKFold(list_classes, 
+                camadas, tabeladados, list_colunas);
+        if(list_folds != null && !list_folds.isEmpty())
+        {
+            txentrada.setText("" + camadas[0]);
+            txsaida.setText("" + camadas[1]);
+            
+            // Média Aritmética:
+            int camada_oculta = (int)Math.round(camadas[0] + camadas[1]) / 2;
+            // Média geométrica:
+            //int camada_oculta = (int)Math.round(Math.sqrt(camadas[0] * camadas[1]));
+            
+            txoculta.setText("" + camada_oculta);
+            
+            String[] vet;
+            int n_col, n_lin = 0;
+            System.out.println("\n\n-------------------------------------------------------------------------------------------------------------------------------------------------");
+            for(int i = 0; i < list_folds.size(); i++)
+            {
+                System.out.println("FOLD [ " + (i + 1) + " ]:");
+                for(int j = 0; j < list_folds.get(i).size(); j++)
+                {
+                    n_col = list_folds.get(i).get(j).size();
+                    vet = tabeladados.getItems().get(n_lin).getTotal();
+                    vet[n_col] = list_classes.get(n_lin).toString().toUpperCase();
+                    tabeladados.getItems().get(n_lin).setTotal(vet);
+                    n_lin++;
+                    for(int k = 0; k < list_folds.get(i).get(j).size(); k++)
+                    {
+                        System.out.print("" + list_folds.get(i).get(j).get(k) + " ");
+                    }
+                    System.out.println("");
+                }
+                System.out.println("");
+            }
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
+            
+            estadoArquivoCarregadoTela();
+        }
+        else
+            informa("Aviso", "Erro ao tentar carregar o Arquivo Completo (possíveis motivos):\n"
+                + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
+                + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
+                + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
+        */
         if(list_dados != null && !list_dados.isEmpty())
         {
             txentrada.setText("" + camadas[0]);
@@ -416,9 +461,9 @@ public class TelaPrincipalController implements Initializable
         }
         else
             informa("Aviso", "Erro ao tentar carregar o Arquivo (possíveis motivos):\n"
-                    + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
-                    + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
-                            + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
+                + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
+                + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
+                + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
     }
 
     @FXML
