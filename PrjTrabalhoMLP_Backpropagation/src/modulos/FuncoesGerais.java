@@ -525,4 +525,56 @@ public class FuncoesGerais
         }
         return null;
     }
+    
+    public static double[][] geraMatConfusao(int dimensao){
+        double[][] mat = new double[dimensao][];
+        
+        for (int i = 0; i < dimensao; i++){
+            mat[i] = new double[dimensao];
+            for (int j = 0; j < dimensao; j++)
+                mat[i][j] = 0;
+        }
+        return mat;
+    }
+    
+    public static double[][] geraMatDesejada(int dimensao){
+        double[][] mat = new double[dimensao][];
+        for (int i = 0; i < dimensao; i++){
+            mat[i] = new double[dimensao];
+            for (int j = 0; j < dimensao; j++)
+            {
+                if(i == j){
+                    mat[i][j] = 1;
+                }
+                else{
+                    mat[i][j] = 0;
+                }
+            }
+        }
+        return mat;
+    }
+    
+    /* Variação do Algoritmo de Fisher-Yates - Complexidade O(n) => Complexidade Variacao O(n/2) */
+    public static ArrayList<ArrayList<Double>> embaralhar(ArrayList<ArrayList<Double>> list_dados)
+    {
+        if(list_dados != null && list_dados.size() > 0)
+        {
+            int k = 0, n = list_dados.size()-1, limite = Integer.parseInt(""+(list_dados.size()/2));
+            ArrayList<Double> list_aux = null;
+            while(n > 0 && n > limite)
+            {
+                k = (int)(Math.random()*(n-1)+1);
+                /* Realizando a Troca */
+                list_aux = list_dados.get(k);
+                list_dados.set(k, list_dados.get(n));
+                list_dados.set(n, list_aux);
+                /* Decrementa N */
+                n--;
+            }
+            return list_dados;
+        }
+        else
+            return null;
+    }
+    
 }
