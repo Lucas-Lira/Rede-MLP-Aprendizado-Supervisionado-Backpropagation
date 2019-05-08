@@ -3,14 +3,22 @@ package modulos;
 public class Neuronio
 {
     private double net, INet, erro;
-    
+
+    public Neuronio(){
+        this.net = 0;
+        this.INet = 0;
+        this.erro = 0;
+    }
     public Neuronio(double net) {
         this.net = net;
+        this.INet = 0;
+        this.erro = 0;
     }
 
     public Neuronio(double net, double INet) {
         this.net = net;
         this.INet = INet;
+        this.erro = 0;
     }
     
     public Neuronio(double net, double INet, double erro) {
