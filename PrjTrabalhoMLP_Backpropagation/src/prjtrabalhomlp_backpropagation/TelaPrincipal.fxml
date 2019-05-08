@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
@@ -17,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="835.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prjtrabalhomlp_backpropagation.TelaPrincipalController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="835.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prjtrabalhomlp_backpropagation.TelaPrincipalController">
 <top>
       <VBox prefHeight="234.0" prefWidth="835.0" style="-fx-background-color: #66feff;" BorderPane.alignment="CENTER">
          <children>
@@ -127,14 +128,7 @@
                               <Font name="System Bold" size="12.0" />
                            </font>
                         </JFXTextField>
-                        <JFXTextField fx:id="txn" focusColor="#0941e7" labelFloat="true" prefHeight="24.0" prefWidth="82.0" promptText="Tx. de Aprendizado (N)">
-                           <padding>
-                              <Insets left="10.0" />
-                           </padding>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </JFXTextField>
+                        <JFXComboBox fx:id="cbn" labelFloat="true" prefHeight="24.0" prefWidth="135.0" promptText="Taxa de Aprendizado (N)" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" layoutX="247.0" layoutY="10.0" prefHeight="137.0" prefWidth="164.0" spacing="25.0">

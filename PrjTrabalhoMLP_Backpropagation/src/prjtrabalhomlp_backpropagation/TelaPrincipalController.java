@@ -1,6 +1,7 @@
 package prjtrabalhomlp_backpropagation;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,8 +42,6 @@ public class TelaPrincipalController implements Initializable
     private JFXTextField txerro;
     @FXML
     private JFXTextField txiteracoes;
-    @FXML
-    private JFXTextField txn;
     @FXML
     private RadioButton rbnormal;
     @FXML
@@ -149,12 +148,14 @@ public class TelaPrincipalController implements Initializable
     private TableColumn<String, String> coltransicao46;
     @FXML
     private JFXButton binicializar;
+    @FXML
+    private JFXComboBox<Double> cbn;
     
     private List<TableColumn> list_colunas;
-    private ArrayList<String> list_classes;
     private int colunas_adicionais;
     private int tf_tabela_dados;
-    private ArrayList<ArrayList<Double>> list_dados;
+    private ArrayList<ArrayList<String>> list_dados;
+    private ArrayList<Integer> list_folds;
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
@@ -164,6 +165,21 @@ public class TelaPrincipalController implements Initializable
         binicializar.setTooltip(geraMsgB("Inicializar"));
         bmatconfusao.setTooltip(geraMsgB("Visualizar Matriz de Confusão"));
         configurarTabelaColunas();
+        inicializaComboboxTaxaAprendizado();
+    }
+    
+    public void inicializaComboboxTaxaAprendizado()
+    {
+        cbn.getItems().add(0.1);
+        cbn.getItems().add(0.2);
+        cbn.getItems().add(0.3);
+        cbn.getItems().add(0.4);
+        cbn.getItems().add(0.5);
+        cbn.getItems().add(0.6);
+        cbn.getItems().add(0.7);
+        cbn.getItems().add(0.8);
+        cbn.getItems().add(0.9);
+        cbn.getItems().add(1.0);
     }
     
     public static Tooltip geraMsgB(String msg)
@@ -192,7 +208,7 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(true);
         txerro.setDisable(true);
         txiteracoes.setDisable(true);
-        txn.setDisable(true);
+        cbn.setDisable(true);
         
         rbhiperbolica.setDisable(true);
         rblinear.setDisable(true);
@@ -214,7 +230,7 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(false);
         txerro.setDisable(false);
         txiteracoes.setDisable(false);
-        txn.setDisable(false);
+        cbn.setDisable(false);
         
         rbhiperbolica.setDisable(false);
         rblinear.setDisable(false);
@@ -236,7 +252,7 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(true);
         txerro.setDisable(true);
         txiteracoes.setDisable(true);
-        txn.setDisable(true);
+        cbn.setDisable(true);
         
         rbhiperbolica.setDisable(true);
         rblinear.setDisable(true);
@@ -303,10 +319,13 @@ public class TelaPrincipalController implements Initializable
         estadoInicialTela();
     }
     
+    /*
+    * @ Desabilita as colunas que foram habilitadas na tabela para o processamento de um determiando arquivo
+    */
     public void restartListColunas()
     {
-        list_classes = new ArrayList();
         list_dados = null;
+        list_folds = new ArrayList();
         tabeladados.getItems().clear();
         
         if(!txentrada.getText().isEmpty())
@@ -320,6 +339,9 @@ public class TelaPrincipalController implements Initializable
         }
     }
     
+    /*
+    * @ Adiociona no list colunas as intâncias das colunas da tabela, a fim de facilitar a manipulação
+    */
     public void inicializarListColunas()
     {
         tabeladados.getItems().clear();
@@ -380,6 +402,9 @@ public class TelaPrincipalController implements Initializable
     {
     }
     
+    /*
+    * @ Adiciona todos os dados dados de uma determianda coluna na tabela
+    */
     public void addDadosColuna(int n_col, ArrayList list) // Para coluans adicionais
     {
         int size = list_dados.size();
@@ -396,55 +421,9 @@ public class TelaPrincipalController implements Initializable
     @FXML
     private void evtArquivo(ActionEvent event)
     {
-        list_classes = new ArrayList();
+        list_folds = new ArrayList();
         int[] camadas = new int[2];
-        list_dados = FuncoesGerais.abrirArquivo(list_classes, camadas, tabeladados, list_colunas);
-        /*
-        ArrayList<ArrayList<ArrayList<Double>>> list_folds = FuncoesGerais.abrirArquivoKFold(list_classes, 
-                camadas, tabeladados, list_colunas);
-        if(list_folds != null && !list_folds.isEmpty())
-        {
-            txentrada.setText("" + camadas[0]);
-            txsaida.setText("" + camadas[1]);
-            
-            // Média Aritmética:
-            int camada_oculta = (int)Math.round(camadas[0] + camadas[1]) / 2;
-            // Média geométrica:
-            //int camada_oculta = (int)Math.round(Math.sqrt(camadas[0] * camadas[1]));
-            
-            txoculta.setText("" + camada_oculta);
-            
-            String[] vet;
-            int n_col, n_lin = 0;
-            System.out.println("\n\n-------------------------------------------------------------------------------------------------------------------------------------------------");
-            for(int i = 0; i < list_folds.size(); i++)
-            {
-                System.out.println("FOLD [ " + (i + 1) + " ]:");
-                for(int j = 0; j < list_folds.get(i).size(); j++)
-                {
-                    n_col = list_folds.get(i).get(j).size();
-                    vet = tabeladados.getItems().get(n_lin).getTotal();
-                    vet[n_col] = list_classes.get(n_lin).toString().toUpperCase();
-                    tabeladados.getItems().get(n_lin).setTotal(vet);
-                    n_lin++;
-                    for(int k = 0; k < list_folds.get(i).get(j).size(); k++)
-                    {
-                        System.out.print("" + list_folds.get(i).get(j).get(k) + " ");
-                    }
-                    System.out.println("");
-                }
-                System.out.println("");
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
-            
-            estadoArquivoCarregadoTela();
-        }
-        else
-            informa("Aviso", "Erro ao tentar carregar o Arquivo Completo (possíveis motivos):\n"
-                + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
-                + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
-                + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
-        */
+        list_dados = FuncoesGerais.abrirArquivoKFold(list_folds, camadas, tabeladados, list_colunas);
         if(list_dados != null && !list_dados.isEmpty())
         {
             txentrada.setText("" + camadas[0]);
@@ -456,11 +435,26 @@ public class TelaPrincipalController implements Initializable
             //int camada_oculta = (int)Math.round(Math.sqrt(camadas[0] * camadas[1]));
             
             txoculta.setText("" + camada_oculta);
-            addDadosColuna(list_dados.get(0).size(), list_classes);
+            /*
+            int pos_prox_fold;
+            System.out.println("\n\n-------------------------------------------------------------------------------------------------------------------------------------------------");
+            for(int i = 0; i < list_folds.size(); i++)
+            {
+                System.out.println("FOLD [ " + (i + 1) + " ]:");
+                if((i + 1) < list_folds.size())
+                    pos_prox_fold = list_folds.get(i + 1);
+                else
+                    pos_prox_fold = list_dados.size();
+                for(int j = list_folds.get(i); j < pos_prox_fold; j++)
+                    System.out.println("" + list_dados.get(j));
+                System.out.println("");
+            }
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
+            */
             estadoArquivoCarregadoTela();
         }
         else
-            informa("Aviso", "Erro ao tentar carregar o Arquivo (possíveis motivos):\n"
+            informa("Aviso", "Erro ao tentar carregar o Arquivo Completo (possíveis motivos):\n"
                 + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
                 + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
                 + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
@@ -472,6 +466,9 @@ public class TelaPrincipalController implements Initializable
         estadoTestarDadosTela();
     }
 
+    /*
+    * Inicializa a interface em uma estado inicial pré-definido
+    */
     @FXML
     private void evtInicializar(ActionEvent event)
     {
@@ -480,7 +477,7 @@ public class TelaPrincipalController implements Initializable
         txentrada.setText("");
         txerro.setText("");
         txiteracoes.setText("");
-        txn.setText("");
+        cbn.getSelectionModel().select(0);
         txoculta.setText("");
         txsaida.setText("");
         
