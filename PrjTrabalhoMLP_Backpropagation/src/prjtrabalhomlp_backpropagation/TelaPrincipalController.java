@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
@@ -18,6 +19,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import modulos.FuncoesGerais;
+import modulos.MLPBackpropagation;
 import modulos.Registro;
 
 public class TelaPrincipalController implements Initializable
@@ -150,12 +152,16 @@ public class TelaPrincipalController implements Initializable
     private JFXButton binicializar;
     @FXML
     private JFXComboBox<Double> cbn;
+    @FXML
+    private Canvas canvasgrafico;
     
     private List<TableColumn> list_colunas;
     private int colunas_adicionais;
     private int tf_tabela_dados;
     private ArrayList<ArrayList<String>> list_dados;
     private ArrayList<Integer> list_folds;
+    private ArrayList<String> list_classes;
+    private MLPBackpropagation mlp;
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
@@ -166,6 +172,7 @@ public class TelaPrincipalController implements Initializable
         bmatconfusao.setTooltip(geraMsgB("Visualizar Matriz de Confusão"));
         configurarTabelaColunas();
         inicializaComboboxTaxaAprendizado();
+        cbn.getSelectionModel().select(0);
     }
     
     public void inicializaComboboxTaxaAprendizado()
@@ -325,7 +332,9 @@ public class TelaPrincipalController implements Initializable
     public void restartListColunas()
     {
         list_dados = null;
-        list_folds = new ArrayList();
+        list_folds = null;
+        list_classes = null;
+        mlp = null;
         tabeladados.getItems().clear();
         
         if(!txentrada.getText().isEmpty())
@@ -345,6 +354,10 @@ public class TelaPrincipalController implements Initializable
     public void inicializarListColunas()
     {
         tabeladados.getItems().clear();
+        list_dados = null;
+        list_folds = null;
+        list_classes = null;
+        mlp = null;
         colunas_adicionais = 2;
         tf_tabela_dados = 46;
         
@@ -421,9 +434,11 @@ public class TelaPrincipalController implements Initializable
     @FXML
     private void evtArquivo(ActionEvent event)
     {
-        list_folds = new ArrayList();
         int[] camadas = new int[2];
-        list_dados = FuncoesGerais.abrirArquivoKFold(list_folds, camadas, tabeladados, list_colunas);
+        list_folds = new ArrayList();
+        list_classes = new ArrayList();
+        
+        list_dados = FuncoesGerais.abrirArquivoKFold(list_folds, list_classes, camadas, tabeladados, list_colunas);
         if(list_dados != null && !list_dados.isEmpty())
         {
             txentrada.setText("" + camadas[0]);
@@ -457,13 +472,23 @@ public class TelaPrincipalController implements Initializable
             informa("Aviso", "Erro ao tentar carregar o Arquivo Completo (possíveis motivos):\n"
                 + "Erro interno durante o processo;\nA qtde de colunas excedem a [" 
                 + (tf_tabela_dados - (colunas_adicionais + 1)) + "] posições;\n"
-                + "Muitos valores inválidos foram inseridos comprometendo a Rede.");
+                + "Muitos valores inválidos foram inseridos comprometendo a Rede;\n"
+                + "Há apenas [ <= ] 1 valor de dado.");
     }
 
     @FXML
     private void evtAvancar(ActionEvent event)
     {
-        estadoTestarDadosTela();
+        if(list_dados != null && list_folds != null && list_classes != null)
+        {
+            int pos_n = cbn.getSelectionModel().getSelectedIndex();
+            estadoTestarDadosTela();
+            mlp = new MLPBackpropagation(list_dados.get(0).size(), Integer.parseInt(txentrada.getText()), 
+                    Integer.parseInt(txoculta.getText()), Integer.parseInt(txsaida.getText()), cbn.getItems().get(pos_n), 
+                    list_classes);
+        }
+        else
+            informa("Aviso", "O Arquivo com os dados ainda não foi carregado");
     }
 
     /*
