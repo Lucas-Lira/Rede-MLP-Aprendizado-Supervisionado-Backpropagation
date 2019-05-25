@@ -1,7 +1,6 @@
 package prjtrabalhomlp_backpropagation;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,23 +8,28 @@ import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import modulos.FuncoesGerais;
 import modulos.MLPBackpropagation;
+import modulos.Parametros;
 import modulos.Registro;
 
 public class TelaPrincipalController implements Initializable
 {
-    @FXML
-    private JFXButton bmatconfusao;
     @FXML
     private JFXTextField txentrada;
     @FXML
@@ -45,15 +49,9 @@ public class TelaPrincipalController implements Initializable
     @FXML
     private JFXTextField txiteracoes;
     @FXML
-    private RadioButton rbnormal;
-    @FXML
     private ToggleGroup execucao;
     @FXML
-    private RadioButton rbpassoapasso;
-    @FXML
     private JFXButton barquivo;
-    @FXML
-    private JFXButton bavancar;
     @FXML
     private TableView<Registro> tabeladados;
     @FXML
@@ -151,9 +149,23 @@ public class TelaPrincipalController implements Initializable
     @FXML
     private JFXButton binicializar;
     @FXML
-    private JFXComboBox<Double> cbn;
+    private Label lerro;
     @FXML
-    private Canvas canvasgrafico;
+    private Label lepocas;
+    @FXML
+    private RadioButton rbtreino;
+    @FXML
+    private RadioButton rbteste;
+    @FXML
+    private JFXButton bexecutar;
+    @FXML
+    private JFXTextField txn;
+    @FXML
+    private Label lfolds;
+    @FXML
+    private Label lteste;
+    @FXML
+    private LineChart<String, Number> lcgrafico;
     
     private List<TableColumn> list_colunas;
     private int colunas_adicionais;
@@ -162,31 +174,19 @@ public class TelaPrincipalController implements Initializable
     private ArrayList<Integer> list_folds;
     private ArrayList<String> list_classes;
     private MLPBackpropagation mlp;
+    private Parametros parametros;
+    private int teste;
+    
+    public static ArrayList<Registro> list_reg;
+    public static ArrayList<String> list_class;
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
         barquivo.setTooltip(geraMsgB("Abrir Arquivo"));
-        bavancar.setTooltip(geraMsgB("Avançar"));
+        bexecutar.setTooltip(geraMsgB("Executar"));
         binicializar.setTooltip(geraMsgB("Inicializar"));
-        bmatconfusao.setTooltip(geraMsgB("Visualizar Matriz de Confusão"));
         configurarTabelaColunas();
-        inicializaComboboxTaxaAprendizado();
-        cbn.getSelectionModel().select(0);
-    }
-    
-    public void inicializaComboboxTaxaAprendizado()
-    {
-        cbn.getItems().add(0.1);
-        cbn.getItems().add(0.2);
-        cbn.getItems().add(0.3);
-        cbn.getItems().add(0.4);
-        cbn.getItems().add(0.5);
-        cbn.getItems().add(0.6);
-        cbn.getItems().add(0.7);
-        cbn.getItems().add(0.8);
-        cbn.getItems().add(0.9);
-        cbn.getItems().add(1.0);
     }
     
     public static Tooltip geraMsgB(String msg)
@@ -215,18 +215,17 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(true);
         txerro.setDisable(true);
         txiteracoes.setDisable(true);
-        cbn.setDisable(true);
+        txn.setDisable(true);
         
         rbhiperbolica.setDisable(true);
         rblinear.setDisable(true);
         rblogistica.setDisable(true);
-        rbnormal.setDisable(true);
-        rbpassoapasso.setDisable(true);
+        rbtreino.setDisable(true);
+        rbteste.setDisable(true);
         
         barquivo.setDisable(false);
-        bavancar.setDisable(true);
+        bexecutar.setDisable(true);
         binicializar.setDisable(true);
-        bmatconfusao.setDisable(true);
     }
     
     public void estadoArquivoCarregadoTela()
@@ -237,18 +236,17 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(false);
         txerro.setDisable(false);
         txiteracoes.setDisable(false);
-        cbn.setDisable(false);
+        txn.setDisable(false);
         
         rbhiperbolica.setDisable(false);
         rblinear.setDisable(false);
         rblogistica.setDisable(false);
-        rbnormal.setDisable(false);
-        rbpassoapasso.setDisable(false);
+        rbtreino.setDisable(false);
+        rbteste.setDisable(false);
         
         barquivo.setDisable(true);
-        bavancar.setDisable(false);
+        bexecutar.setDisable(false);
         binicializar.setDisable(false);
-        bmatconfusao.setDisable(false);
     }
     
     public void estadoTestarDadosTela()
@@ -259,18 +257,17 @@ public class TelaPrincipalController implements Initializable
         txoculta.setDisable(true);
         txerro.setDisable(true);
         txiteracoes.setDisable(true);
-        cbn.setDisable(true);
+        txn.setDisable(true);
         
         rbhiperbolica.setDisable(true);
         rblinear.setDisable(true);
         rblogistica.setDisable(true);
-        rbnormal.setDisable(true);
-        rbpassoapasso.setDisable(true);
+        rbtreino.setDisable(true);
+        rbteste.setDisable(true);
         
         barquivo.setDisable(true);
-        bavancar.setDisable(false);
+        bexecutar.setDisable(false);
         binicializar.setDisable(false);
-        bmatconfusao.setDisable(false);
     }
     
     public void configurarTabelaColunas()
@@ -335,7 +332,16 @@ public class TelaPrincipalController implements Initializable
         list_folds = null;
         list_classes = null;
         mlp = null;
+        parametros = null;
+        lerro.setText("");
+        lepocas.setText("");
+        lfolds.setText("");
+        lteste.setText("");
+        teste = (-1);
+        list_reg = null;
+        list_class = null;
         tabeladados.getItems().clear();
+        lcgrafico.getData().clear();
         
         if(!txentrada.getText().isEmpty())
         {
@@ -358,8 +364,17 @@ public class TelaPrincipalController implements Initializable
         list_folds = null;
         list_classes = null;
         mlp = null;
-        colunas_adicionais = 2;
+        parametros = null;
+        lerro.setText("");
+        lepocas.setText("");
+        lfolds.setText("");
+        lteste.setText("");
+        teste = (-1);
+        list_reg = null;
+        list_class = null;
+        colunas_adicionais = 1;
         tf_tabela_dados = 46;
+        lcgrafico.getData().clear();
         
         list_colunas = new ArrayList();
         list_colunas.add(coltransicao1);
@@ -409,11 +424,6 @@ public class TelaPrincipalController implements Initializable
         list_colunas.add(coltransicao45);
         list_colunas.add(coltransicao46);
     }
-
-    @FXML
-    private void evtTabelaConfusao(ActionEvent event)
-    {
-    }
     
     /*
     * @ Adiciona todos os dados dados de uma determianda coluna na tabela
@@ -445,28 +455,18 @@ public class TelaPrincipalController implements Initializable
             txsaida.setText("" + camadas[1]);
             
             // Média Aritmética:
-            int camada_oculta = (int)Math.round(camadas[0] + camadas[1]) / 2;
+            int camada_oculta = (int)Math.round((camadas[0] + camadas[1]) / 2);
             // Média geométrica:
             //int camada_oculta = (int)Math.round(Math.sqrt(camadas[0] * camadas[1]));
             
             txoculta.setText("" + camada_oculta);
-            /*
-            int pos_prox_fold;
-            System.out.println("\n\n-------------------------------------------------------------------------------------------------------------------------------------------------");
-            for(int i = 0; i < list_folds.size(); i++)
-            {
-                System.out.println("FOLD [ " + (i + 1) + " ]:");
-                if((i + 1) < list_folds.size())
-                    pos_prox_fold = list_folds.get(i + 1);
-                else
-                    pos_prox_fold = list_dados.size();
-                for(int j = list_folds.get(i); j < pos_prox_fold; j++)
-                    System.out.println("" + list_dados.get(j));
-                System.out.println("");
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
-            */
             estadoArquivoCarregadoTela();
+            teste = 0;
+            parametros = new Parametros(lerro, lepocas);
+            rbteste.setDisable(true);
+            lfolds.setText("Qtde. Folds: " + list_folds.size());
+            lteste.setText("Pos. Fold. Teste: " + teste);
+            lcgrafico.getData().clear();
         }
         else
             informa("Aviso", "Erro ao tentar carregar o Arquivo Completo (possíveis motivos):\n"
@@ -475,20 +475,25 @@ public class TelaPrincipalController implements Initializable
                 + "Muitos valores inválidos foram inseridos comprometendo a Rede;\n"
                 + "Há apenas [ <= ] 1 valor de dado.");
     }
-
-    @FXML
-    private void evtAvancar(ActionEvent event)
+    
+    public boolean isInteger(String valor)
     {
-        if(list_dados != null && list_folds != null && list_classes != null)
+        try
         {
-            int pos_n = cbn.getSelectionModel().getSelectedIndex();
-            estadoTestarDadosTela();
-            mlp = new MLPBackpropagation(list_dados.get(0).size(), Integer.parseInt(txentrada.getText()), 
-                    Integer.parseInt(txoculta.getText()), Integer.parseInt(txsaida.getText()), cbn.getItems().get(pos_n), 
-                    list_classes);
+            Integer.parseInt(valor);
+            return true;
         }
-        else
-            informa("Aviso", "O Arquivo com os dados ainda não foi carregado");
+        catch(Exception ex) { return false; }
+    }
+    
+    public boolean isDouble(String valor)
+    {
+        try
+        {
+            Double.parseDouble(valor);
+            return true;
+        }
+        catch(Exception ex) { return false; }
     }
 
     /*
@@ -502,13 +507,143 @@ public class TelaPrincipalController implements Initializable
         txentrada.setText("");
         txerro.setText("");
         txiteracoes.setText("");
-        cbn.getSelectionModel().select(0);
+        txn.setText("");
         txoculta.setText("");
         txsaida.setText("");
         
+        parametros = null;
+        lerro.setText("");
+        lepocas.setText("");
+        lfolds.setText("");
+        lteste.setText("");
+        teste = (-1);
+        list_reg = null;
+        list_class = null;
+        
+        lcgrafico.getData().clear();
+        
         rblinear.setSelected(true);
-        rbnormal.setSelected(true);
+        rbtreino.setSelected(true);
         
         estadoInicialTela();
+    }
+
+    @FXML
+    private void evtExecutar(ActionEvent event)
+    {
+        if(list_dados != null && !list_dados.isEmpty())
+        {
+            String erros = "";
+            if(txentrada.getText().isEmpty() || !isInteger(txentrada.getText()))
+                erros = "Campo 'Camada Entrada' é inválido!";
+            if(txoculta.getText().isEmpty() || !isInteger(txoculta.getText()) || Integer.parseInt(txoculta.getText()) < 1)
+            {
+                if(erros.isEmpty()) erros = "Campo 'Camada Oculta' é inválido!";
+                else erros += "\nCampo 'Camada Oculta' é inválido!";
+            }
+            if(txsaida.getText().isEmpty() || !isInteger(txsaida.getText()))
+            {
+                if(erros.isEmpty()) erros = "Campo 'Camada Saída' é inválido!";
+                else erros += "\nCampo 'Camada Saída' é inválido!";
+            }
+            if(!rbtreino.isSelected() && !rbteste.isSelected())
+            {
+                if(erros.isEmpty()) erros = "Campo 'Tipo de Função' é inválido!";
+                else erros += "\nCampo 'Tipo de Função' é inválido!";
+            }
+            if(!rblinear.isSelected() && !rblogistica.isSelected() && !rbhiperbolica.isSelected())
+            {
+                if(erros.isEmpty()) erros = "Campo 'Tipo de Função' é inválido!";
+                else erros += "\nCampo 'Tipo de Função' é inválido!";
+            }
+            if(txn.getText().isEmpty() || !isDouble(txn.getText()) || 
+                    Double.parseDouble(txn.getText()) <= 0)
+            {
+                if(erros.isEmpty()) erros = "Campo 'Taxa de Aprendizagem' é inválido!";
+                else erros += "\nCampo 'Taxa de Aprendizagem' é inválido!";
+            }
+            if(txerro.getText().isEmpty() || !isDouble(txerro.getText()) || 
+                    Double.parseDouble(txerro.getText()) <= 0)
+            {
+                if(erros.isEmpty()) erros = "Campo 'Erro' é inválido!";
+                else erros += "\nCampo 'Erro' é inválido!";
+            }
+            if(txiteracoes.getText().isEmpty() || !isInteger(txiteracoes.getText()) || 
+                    Integer.parseInt(txiteracoes.getText()) <= 0)
+            {
+                if(erros.isEmpty()) erros = "Campo 'Nº de Iterações' é inválido!";
+                else erros += "\nCampo 'Nº de Iterações' é inválido!";
+            }
+
+            if(erros.isEmpty())
+            {
+                binicializar.setDisable(true);
+                int qtd_neuronios_entrada = Integer.parseInt(txentrada.getText());
+                int qtd_neuronios_oculta = Integer.parseInt(txoculta.getText());
+                int qtd_neuronios_saida = Integer.parseInt(txsaida.getText());
+                int tipo_funcao;
+                if(rblinear.isSelected())
+                    tipo_funcao = 1;
+                else {
+                    if(rblogistica.isSelected())
+                        tipo_funcao = 2;
+                    else
+                        tipo_funcao = 3;
+                }
+                double limiar = Double.parseDouble(txerro.getText());
+                int qtd_epocas = Integer.parseInt(txiteracoes.getText());
+                double taxa_aprendizado = Double.parseDouble(txn.getText());
+                
+                list_reg = null;
+                list_class = null;
+                if(rbtreino.isSelected())
+                {
+                    lteste.setText("Pos. Fold. Teste: " + teste);
+                    mlp = null;
+                    
+                    //lcgrafico.getData().clear();
+                    XYChart.Series series = new XYChart.Series();
+                    lcgrafico.getData().add(series);
+                    series.setName("Época(s): Fold ignorado nº" + teste);
+                    lcgrafico.getYAxis().setLabel("Erro da Rede");
+                    
+                    mlp = new MLPBackpropagation(list_dados.get(0).size(), qtd_neuronios_entrada, qtd_neuronios_oculta, 
+                            qtd_neuronios_saida, taxa_aprendizado, list_classes);
+                    if(teste < 0)
+                        teste = 0;
+                    if(parametros == null) parametros = new Parametros(lerro, lepocas);
+                    
+                    mlp.executaTreinamento(tabeladados, lcgrafico, list_dados, list_folds, teste, tipo_funcao, 
+                            qtd_epocas, limiar, parametros, binicializar);
+                    
+                    teste++;
+                    if(teste == list_folds.size())
+                        teste = 0;
+                    
+                    rbteste.setDisable(false);
+                }
+                else {
+                    mlp.executaTeste(list_dados, list_folds, teste, tipo_funcao, binicializar);
+                    try
+                    {
+                        list_class = list_classes;
+                        list_reg = mlp.getMatrizDeConfusaoRegistro();
+                        Stage stage = new Stage();
+                        Scene scene = new Scene(FXMLLoader.load(getClass().getResource("TelaMatrizConfusao.fxml")));
+
+                        stage.setScene(scene);
+                        stage.setTitle("Matriz de Confusão"); 
+                        stage.setResizable(false);
+                        stage.initModality(Modality.APPLICATION_MODAL);
+                        stage.show();
+                    }
+                    catch(Exception e) { informa("Erro na operação", "Não foi possível abrir a Tela da Matriz de Confusão"); }
+                }
+            }
+            else
+                informa("Erro(s)", erros);
+        }
+        else
+            informa("Aviso", "O Arquivo com os dados ainda não foi carregado");
     }
 }

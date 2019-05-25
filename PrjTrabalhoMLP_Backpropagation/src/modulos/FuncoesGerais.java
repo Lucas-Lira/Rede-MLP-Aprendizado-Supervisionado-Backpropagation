@@ -83,11 +83,10 @@ public class FuncoesGerais
                         if(qtde_col >= 1)
                         {
                             camadas[0] = qtde_col - 1;
-                            if(camadas[0] < (tf - 3))
+                            if(camadas[0] < (tf - 2))
                             {
-                                cols_adicionais = 2;
-                                vetValores[camadas[0] + 1] = "SAÍDA";
-                                vetValores[camadas[0] + 2] = "E. REDE";
+                                cols_adicionais = 1;
+                                vetValores[camadas[0] + 1] = "E. REDE";
 
                                 for(int i = 0; i < qtde_col - 1; i++)
                                     list_maior_menor.add(new RegMaiorMenor());
@@ -237,7 +236,7 @@ public class FuncoesGerais
                     {
                         list_colunas.get(i).setVisible(true);
                         list_colunas.get(i).setText(vet[i]);
-                        list_colunas.get(i).setPrefWidth(85);
+                        list_colunas.get(i).setPrefWidth(140);
                     }
                 }
             }
